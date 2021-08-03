@@ -24,6 +24,10 @@ namespace SuperShop
             {
                 cfg.UseSqlServer(this.Configuration.GetConnectionString("DefaultConnection"));   // usar o sqlsever com esta connection string
             });
+
+            services.AddTransient<SeedDb>(); // quando alguem chamar pelo SeedDb cria-o na factory do Program.cs
+                    //AddTransient -> Usa e deita fora (deixa de ficar em memória) e não pode ser mais usado 
+
             services.AddControllersWithViews();
         }
 
