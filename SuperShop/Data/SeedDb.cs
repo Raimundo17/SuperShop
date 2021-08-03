@@ -1,8 +1,8 @@
-﻿using SuperShop.Data.Entities;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using SuperShop.Data.Entities;
+
 
 namespace SuperShop.Data
 {
@@ -20,7 +20,7 @@ namespace SuperShop.Data
         public async Task SeedAsync()
         {
             await _context.Database.EnsureCreatedAsync(); // ver se a base de dados está criada
-            
+
             if (!_context.products.Any()) // se nao existirem produtos
             {
                 AddProduct("iPhone X");
@@ -28,13 +28,13 @@ namespace SuperShop.Data
                 AddProduct("iWatch Series 4");
                 AddProduct("iPad mini");
                 await _context.SaveChangesAsync(); // grava na base de dados
-            }    
+            }
         }
 
         private void AddProduct(string name)
         {
             _context.products.Add(new Product
-            { 
+            {
                 Name = name,
                 Price = _random.Next(1000),
                 IsAvailable = true,

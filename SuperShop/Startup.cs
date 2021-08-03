@@ -26,8 +26,8 @@ namespace SuperShop
             });
 
             services.AddTransient<SeedDb>(); // quando alguem chamar pelo SeedDb cria-o na factory do Program.cs
-                    //AddTransient -> Usa e deita fora (deixa de ficar em memória) e não pode ser mais usado 
-
+                                             //AddTransient -> Usa e deita fora (deixa de ficar em memória) e não pode ser mais usado 
+            services.AddScoped<IRepository, Repository>(); // dependecy injection, assim que for preciso um repositorio ele cria sem ser preciso instanciar
             services.AddControllersWithViews();
         }
 
