@@ -8,28 +8,28 @@ namespace SuperShop.Controllers
 {
     public class ProductsController : Controller
     {
-        private readonly IRepository _repository;
+        private readonly IProductRepository _productRepository;
 
-        public ProductsController(IRepository repository)
+        public ProductsController(IProductRepository productRepository)
         {
-            _repository = repository;
+            _productRepository = productRepository;
         }
 
         // GET: Products
         public IActionResult Index()
         {
-            return View(_repository.GetProducts()); // trás todos os produtos
+            return View(_productRepository.GetAll()); // trás todos os produtos
         }
 
         // GET: Products/Details/5
-        public IActionResult Details(int? id) // pode aceitar null
+        public async Task<IActionResult> Details(int? id) // pode aceitar null
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var product = _repository.GetProduct(id.Value); // tem que ser id.value para que se for null não "rebentar"
+            var product = await _productRepository.GetByIdAsync(id.Value); // tem que ser id.value para que se for null não "rebentar"
             if (product == null)
             {
                 return NotFound();
@@ -55,8 +55,7 @@ namespace SuperShop.Controllers
         {
             if (ModelState.IsValid)
             {
-                _repository.AddProduct(product); // recebe o produto
-                await _repository.SaveAllAsync(); // guarda na base de dados de forma assíncrona
+                await _productRepository.CreateAsync(product); // recebe o produto
                 return RedirectToAction(nameof(Index)); // redireciona para a action index (mostra a lista dos produtos)
             }
             return View(product); // se o produto não passar nas validações mostra a view e deixa ficar lá o produto,
@@ -64,14 +63,14 @@ namespace SuperShop.Controllers
         }
 
         // GET: Products/Edit/5
-        public IActionResult Edit(int? id)
+        public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) // O ? permite que o id seja opcional de forma a que mesmo que o id vá vazio (url) o programa não "rebente"
             {
                 return NotFound();
             }
 
-            var product = _repository.GetProduct(id.Value); // coloca o id em memória e verifica caso o id tenha sido eliminado entretanto
+            var product = await _productRepository.GetByIdAsync(id.Value); // coloca o id em memória e verifica caso o id tenha sido eliminado entretanto
             if (product == null)                            // tem que ser id.value para que se for null não "rebentar"
             {
                 return NotFound();
@@ -95,12 +94,11 @@ namespace SuperShop.Controllers
             {
                 try
                 {
-                    _repository.UpdateProduct(product); // faz o update do produto
-                    await _repository.SaveAllAsync(); // grava na base de dados
+                    await _productRepository.UpdateAsync(product); // faz o update do produto
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!_repository.ProductExists(product.Id)) // verifica se o id existe devido a alguem entretanto ter apagado este produto
+                    if (! await _productRepository.ExistAsync(product.Id)) // verifica se o id existe devido a alguem entretanto ter apagado este produto
                     {
                         return NotFound();
                     }
@@ -115,14 +113,14 @@ namespace SuperShop.Controllers
         }
 
         // GET: Products/Delete/5 // Só mostra o que for para apagar. Não apaga
-        public IActionResult Delete(int? id) // O ? permite que o id seja opcional de forma a que mesmo que o id vá vazio (url) o programa não "rebente"
+        public async Task <IActionResult> Delete(int? id) // O ? permite que o id seja opcional de forma a que mesmo que o id vá vazio (url) o programa não "rebente"
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var product = _repository.GetProduct(id.Value);
+            var product = await _productRepository.GetByIdAsync(id.Value);
             if (product == null)
             {
                 return NotFound();
@@ -136,9 +134,8 @@ namespace SuperShop.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id) // o id é obrigatório
         {
-            var product = _repository.GetProduct(id); // o id é verficado para ver se ainda existe
-            _repository.RemoveProduct(product); //remover em memória
-            await _repository.SaveAllAsync(); // guarda as alterações na base de dados
+            var product = await _productRepository.GetByIdAsync(id); // o id é verficado para ver se ainda existe
+            await _productRepository.DeleteAsync(product); //remover em memória
             return RedirectToAction(nameof(Index));
         }
     }

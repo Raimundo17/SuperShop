@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SuperShop.Data.Entities
 {
-    public class Product // Entidade que vai dar origem a uma tabela na base de dados
+    public class Product : IEntity // Entidade que vai dar origem a uma tabela na base de dados
     {
         public int Id { get; set; } // como é Id automaticamente fica como chave primária
 
