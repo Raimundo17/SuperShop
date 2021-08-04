@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SuperShop.Data.Entities;
 
 namespace SuperShop.Data
 {
-    public class DataContext : DbContext // Classe específica que fica responsável pela ligação á base de dados ; Herdo da DbContext da Entity
+    public class DataContext : IdentityDbContext<User> // Classe específica que fica responsável pela ligação á base de dados, injeto o meu user
     {
 
         public DbSet<Product> products { get; set; } // criar a tabela

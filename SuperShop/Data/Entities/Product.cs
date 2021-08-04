@@ -28,5 +28,8 @@ namespace SuperShop.Data.Entities
 
         [DisplayFormat(DataFormatString = "{0:N2}", ApplyFormatInEditMode = false)] // N-> number
         public double Stock { get; set; }
+
+        public User User { get; set; } // cria uma relação de 1 para muitos (um user pode ter vários produtos)
+                                       // quem foi o user que colocou aquele produto
     }
 }

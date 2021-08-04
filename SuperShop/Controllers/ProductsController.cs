@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using SuperShop.Data;
 using SuperShop.Data.Entities;
+using SuperShop.Helpers;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SuperShop.Controllers
@@ -9,16 +11,19 @@ namespace SuperShop.Controllers
     public class ProductsController : Controller
     {
         private readonly IProductRepository _productRepository;
+        private readonly IUserHelper _userHelper;
 
-        public ProductsController(IProductRepository productRepository)
+        public ProductsController(
+            IProductRepository productRepository, IUserHelper userHelper)
         {
             _productRepository = productRepository;
+            _userHelper = userHelper;
         }
 
         // GET: Products
         public IActionResult Index()
         {
-            return View(_productRepository.GetAll()); // trás todos os produtos
+            return View(_productRepository.GetAll().OrderBy(p=> p.Name)); // trás todos os produtos, ordenados alfabeticamente pelo nome
         }
 
         // GET: Products/Details/5
@@ -55,6 +60,8 @@ namespace SuperShop.Controllers
         {
             if (ModelState.IsValid)
             {
+                //TODO : Modificar para o user que tiver logado
+                product.User = await _userHelper.GetUserByEmailAsync("daniel.raimundo.21229@formandos.cinel.pt");
                 await _productRepository.CreateAsync(product); // recebe o produto
                 return RedirectToAction(nameof(Index)); // redireciona para a action index (mostra a lista dos produtos)
             }
@@ -94,6 +101,8 @@ namespace SuperShop.Controllers
             {
                 try
                 {
+                    //TODO : Modificar para o user que tiver logado
+                    product.User = await _userHelper.GetUserByEmailAsync("daniel.raimundo.21229@formandos.cinel.pt"); 
                     await _productRepository.UpdateAsync(product); // faz o update do produto
                 }
                 catch (DbUpdateConcurrencyException)
