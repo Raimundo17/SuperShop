@@ -45,6 +45,8 @@ namespace SuperShop
                                              //AddTransient -> Usa e deita fora (deixa de ficar em memória) e não pode ser mais usado 
             //services.AddScoped<IRepository, Repository>(); // dependecy injection, assim que for preciso um repositorio ele cria sem ser preciso instanciar
             services.AddScoped<IUserHelper, UserHelper>();
+            services.AddScoped<IImageHelper, ImageHelper>();
+            services.AddScoped<IConverterHelper, ConverterHelper>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddControllersWithViews();
         }
