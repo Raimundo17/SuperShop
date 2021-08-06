@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using SuperShop.Data.Entities;
 using SuperShop.Helpers;
 using SuperShop.Models;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace SuperShop.Controllers
 {
@@ -49,6 +51,53 @@ namespace SuperShop.Controllers
         {
             await _userHelper.LogoutAsync();
             return RedirectToAction("Index", "Home");
+        }
+
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterNewUserViewModel model)
+        {
+            if(ModelState.IsValid) // se os campos estao devidamente preenchidos
+            {
+                var user = await _userHelper.GetUserByEmailAsync(model.Username); // verificar se este user já existe ou não
+                if(user == null)
+                {
+                    user = new User
+                    {
+                        FirstName = model.FirstName,
+                        LastName = model.LastName,
+                        Email = model.Username,
+                        UserName = model.Username
+                    };
+
+                    var result = await _userHelper.AddUserAsync(user, model.Password);
+                    if(result != IdentityResult.Success)
+                    {
+                        ModelState.AddModelError(string.Empty, "The user couldn´t be created");
+                        return View(model);
+                    }
+
+                    var loginViewModel = new LoginViewModel // faz o login pelo utilizador
+                    {
+                        Password = model.Password,
+                        RememberMe = false,
+                        UserName = model.Username
+                    };
+
+                    var result2 = await _userHelper.LoginAsync(loginViewModel);
+                    if(result2.Succeeded)
+                    {
+                        return RedirectToAction("Index", "Home");
+                    }
+
+                    ModelState.AddModelError(string.Empty, "The user couldn´t be logged");
+                }
+            }
+            return View(model);
         }
     }
 }

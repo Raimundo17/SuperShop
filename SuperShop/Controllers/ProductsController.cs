@@ -76,8 +76,8 @@ namespace SuperShop.Controllers
                 // coverte de product para view model
                 var product = _converterHelper.ToProduct(model, path, true); // é true porque é novo (create)
 
-                //TODO : Modificar para o user que tiver logado
-                product.User = await _userHelper.GetUserByEmailAsync("daniel.raimundo.21229@formandos.cinel.pt");
+                
+                product.User = await _userHelper.GetUserByEmailAsync(this.User.Identity.Name); // dá o utilizador que estiver "logado"
                 await _productRepository.CreateAsync(product); // recebe o produto
                 return RedirectToAction(nameof(Index)); // redireciona para a action index (mostra a lista dos produtos)
             }
@@ -159,8 +159,8 @@ namespace SuperShop.Controllers
 
                     var product = _converterHelper.ToProduct(model, path, false); // o bool é false porque não é novo (edit)
 
-                    //TODO : Modificar para o user que tiver logado
-                    product.User = await _userHelper.GetUserByEmailAsync("daniel.raimundo.21229@formandos.cinel.pt");
+                    
+                    product.User = await _userHelper.GetUserByEmailAsync(this.User.Identity.Name);  // dá o utilizador que estiver "logado"
                     await _productRepository.UpdateAsync(product); // faz o update do produto
                 }
                 catch (DbUpdateConcurrencyException)
@@ -180,6 +180,7 @@ namespace SuperShop.Controllers
         }
 
         // GET: Products/Delete/5 // Só mostra o que for para apagar. Não apaga
+        [Authorize]
         public async Task<IActionResult> Delete(int? id) // O ? permite que o id seja opcional de forma a que mesmo que o id vá vazio (url) o programa não "rebente"
         {
             if (id == null)
