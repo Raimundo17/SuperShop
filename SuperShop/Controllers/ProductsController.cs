@@ -1,11 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SuperShop.Data;
-using SuperShop.Data.Entities;
 using SuperShop.Helpers;
 using SuperShop.Models;
-using System;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -30,7 +28,7 @@ namespace SuperShop.Controllers
         // GET: Products
         public IActionResult Index()
         {
-            return View(_productRepository.GetAll().OrderBy(p=> p.Name)); // trás todos os produtos, ordenados alfabeticamente pelo nome
+            return View(_productRepository.GetAll().OrderBy(p => p.Name)); // trás todos os produtos, ordenados alfabeticamente pelo nome
         }
 
         // GET: Products/Details/5
@@ -51,6 +49,7 @@ namespace SuperShop.Controllers
         }
 
         // GET: Products/Create
+        [Authorize]
         public IActionResult Create() // Abrir a view do create (aquela janela que aparece assim que carregamos no botao do create new)
         {
             return View();
@@ -67,15 +66,15 @@ namespace SuperShop.Controllers
         {
             if (ModelState.IsValid)
             {
-                 var path = string.Empty; // caminho da imagem
+                var path = string.Empty; // caminho da imagem
 
-                if(model.ImageFile != null && model.ImageFile.Length > 0) // verificar se tem imagem
+                if (model.ImageFile != null && model.ImageFile.Length > 0) // verificar se tem imagem
                 {
                     path = await _imageHelper.UploadImageAsync(model.ImageFile, "products"); // guarda o ficheiro na pasta products
-                }                                                          
+                }
 
                 // coverte de product para view model
-                var product = _converterHelper.ToProduct(model,path,true); // é true porque é novo (create)
+                var product = _converterHelper.ToProduct(model, path, true); // é true porque é novo (create)
 
                 //TODO : Modificar para o user que tiver logado
                 product.User = await _userHelper.GetUserByEmailAsync("daniel.raimundo.21229@formandos.cinel.pt");
@@ -83,7 +82,7 @@ namespace SuperShop.Controllers
                 return RedirectToAction(nameof(Index)); // redireciona para a action index (mostra a lista dos produtos)
             }
             return View(model); // se o produto não passar nas validações mostra a view e deixa ficar lá o produto,
-                                  // para o utilizador não ter que preencher tudo de novo
+                                // para o utilizador não ter que preencher tudo de novo
         }
 
         // OLD
@@ -104,6 +103,7 @@ namespace SuperShop.Controllers
         //}
 
         // GET: Products/Edit/5
+        [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) // O ? permite que o id seja opcional de forma a que mesmo que o id vá vazio (url) o programa não "rebente"
@@ -145,27 +145,27 @@ namespace SuperShop.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(ProductViewModel model)
         {
-            
+
             if (ModelState.IsValid)
             {
                 try
                 {
                     var path = model.ImageUrl;
 
-                    if(model.ImageFile != null && model.ImageFile.Length > 0)
+                    if (model.ImageFile != null && model.ImageFile.Length > 0)
                     {
                         path = await _imageHelper.UploadImageAsync(model.ImageFile, "products");
                     }
 
-                    var product = _converterHelper.ToProduct(model, path,false); // o bool é false porque não é novo (edit)
+                    var product = _converterHelper.ToProduct(model, path, false); // o bool é false porque não é novo (edit)
 
                     //TODO : Modificar para o user que tiver logado
-                    product.User = await _userHelper.GetUserByEmailAsync("daniel.raimundo.21229@formandos.cinel.pt"); 
+                    product.User = await _userHelper.GetUserByEmailAsync("daniel.raimundo.21229@formandos.cinel.pt");
                     await _productRepository.UpdateAsync(product); // faz o update do produto
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (! await _productRepository.ExistAsync(model.Id)) // verifica se o id existe devido a alguem entretanto ter apagado este produto
+                    if (!await _productRepository.ExistAsync(model.Id)) // verifica se o id existe devido a alguem entretanto ter apagado este produto
                     {
                         return NotFound();
                     }
@@ -180,7 +180,7 @@ namespace SuperShop.Controllers
         }
 
         // GET: Products/Delete/5 // Só mostra o que for para apagar. Não apaga
-        public async Task <IActionResult> Delete(int? id) // O ? permite que o id seja opcional de forma a que mesmo que o id vá vazio (url) o programa não "rebente"
+        public async Task<IActionResult> Delete(int? id) // O ? permite que o id seja opcional de forma a que mesmo que o id vá vazio (url) o programa não "rebente"
         {
             if (id == null)
             {
