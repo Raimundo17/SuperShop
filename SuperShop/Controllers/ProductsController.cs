@@ -36,13 +36,16 @@ namespace SuperShop.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                //return NotFound();
+                return new NotFoundViewResult("ProductNotFound"); // passo a minha view
+                                        // genérico dá para produtos, clientes, fornecedores, etc
             }
 
             var product = await _productRepository.GetByIdAsync(id.Value); // tem que ser id.value para que se for null não "rebentar"
             if (product == null)
             {
-                return NotFound();
+                //return NotFound();
+                return new NotFoundViewResult("ProductNotFound");
             }
 
             return View(product);
@@ -109,13 +112,17 @@ namespace SuperShop.Controllers
         {
             if (id == null) // O ? permite que o id seja opcional de forma a que mesmo que o id vá vazio (url) o programa não "rebente"
             {
-                return NotFound();
+                // return NotFound();
+                return new NotFoundViewResult("ProductNotFound"); // passo a minha view
+                                                                  // genérico dá para produtos, clientes, fornecedores, etc
             }
 
             var product = await _productRepository.GetByIdAsync(id.Value); // coloca o id em memória e verifica caso o id tenha sido eliminado entretanto
             if (product == null)                            // tem que ser id.value para que se for null não "rebentar"
             {
-                return NotFound();
+                //return NotFound();
+                return new NotFoundViewResult("ProductNotFound"); // passo a minha view
+                                                                  // genérico dá para produtos, clientes, fornecedores, etc
             }
 
             var model = _converterHelper.ToProductViewModel(product); // converte de product para um product view model
@@ -186,13 +193,17 @@ namespace SuperShop.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                // return NotFound();
+                return new NotFoundViewResult("ProductNotFound"); // passo a minha view
+                                                                  // genérico dá para produtos, clientes, fornecedores, etc
             }
 
             var product = await _productRepository.GetByIdAsync(id.Value);
             if (product == null)
             {
-                return NotFound();
+                // return NotFound();
+                return new NotFoundViewResult("ProductNotFound"); // passo a minha view
+                                                                  // genérico dá para produtos, clientes, fornecedores, etc
             }
 
             return View(product);
@@ -206,6 +217,11 @@ namespace SuperShop.Controllers
             var product = await _productRepository.GetByIdAsync(id); // o id é verficado para ver se ainda existe
             await _productRepository.DeleteAsync(product); //remover em memória
             return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult ProductNotFound()
+        {
+            return View();
         }
     }
 }
