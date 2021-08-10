@@ -26,6 +26,9 @@ namespace SuperShop.Data
         {
             await _context.Database.EnsureCreatedAsync(); // ver se a base de dados está criada
 
+            await _userHelper.CheckRoleAsync("Admin");
+            await _userHelper.CheckRoleAsync("Customer");
+
             var user = await _userHelper.GetUserByEmailAsync("daniel.raimundo.21229@formandos.cinel.pt"); // ver se ja existe utilizador, o primeiro a ser criado é o admin pela propria aplicacao
             if(user == null) // se nao existir
             {
@@ -45,6 +48,14 @@ namespace SuperShop.Data
                 {
                     throw new InvalidOperationException("Could not create the user in seeder");
                 }
+
+                await _userHelper.AddUserToRoleAsync(user, "Admin");
+            }
+
+            var isInRole = await _userHelper.IsUserInRoleAsync(user, "Admin");
+            if(!isInRole)
+            {
+                await _userHelper.AddUserToRoleAsync(user, "Admin");
             }
 
             if (!_context.products.Any()) // se nao existirem produtos

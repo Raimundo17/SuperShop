@@ -49,7 +49,8 @@ namespace SuperShop.Controllers
         }
 
         // GET: Products/Create
-        [Authorize]
+        [Authorize(Roles ="Admin")]
+        //[Authorize(Roles = "Admin,Customer")]
         public IActionResult Create() // Abrir a view do create (aquela janela que aparece assim que carregamos no botao do create new)
         {
             return View();
