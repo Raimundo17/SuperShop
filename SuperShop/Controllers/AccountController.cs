@@ -167,10 +167,5 @@ namespace SuperShop.Controllers
             }
             return View(model);
         }
-
-        public IActionResult NotAuthorized()
-        {
-            return View(); // em vez de passar pelo middleware todas as páginas de nao autorizado passaram por aqui (em vez de mandar para o login)
-        }
     }
 }
